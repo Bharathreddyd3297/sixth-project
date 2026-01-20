@@ -1,40 +1,23 @@
-name: Deployment
+name: Env Variables Demo
 on:
   push:
     branches:
       - main
-      - dev
+
 env:
-  MONGODB_DB_NAME: demo
+  APP_ENV: github-actions   # workflow-level env
+
 jobs:
   test:
-    env:
-       MONGODB_CLUSTER_ADDRESS: dbcluster.ge6iz0i.mongodb.net
-       MONGODB_USERNAME: bharathreddy329_db_user
-       MONGODB_PASSWORD: Cloud@123
-       PORT: 8080
     runs-on: ubuntu-latest
+    env:
+      PORT: 8080            # job-level env
     steps:
-      - name: Get Code
+      - name: Checkout code
         uses: actions/checkout@v3
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: npm-deps-${{ hashFiles('**/package-lock.json') }}
+
       - name: Install dependencies
         run: npm ci
-      - name: Run server
-        run: npm start & npx wait-on http://127.0.0.1:$PORT
-      - name: Run tests
-        run: npm test
-      - name: Output information
-        run: |
-            echo "MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}"
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Output information
-        run: |        
-          echo ""MONGODB_USERNAME: ${{ env.MONGODB_USERNAME }}""
+
+      - name: Run application
+        run: node app.js
